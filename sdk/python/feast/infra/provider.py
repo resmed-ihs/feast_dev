@@ -176,6 +176,7 @@ class Provider(ABC):
     @abstractmethod
     def get_historical_features(
         self,
+        api_key: str,
         config: RepoConfig,
         feature_views: List[FeatureView],
         feature_refs: List[str],
@@ -208,6 +209,7 @@ class Provider(ABC):
     @abstractmethod
     def online_read(
         self,
+        api_key: str,
         config: RepoConfig,
         table: FeatureView,
         entity_keys: List[EntityKeyProto],

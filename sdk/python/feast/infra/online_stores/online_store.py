@@ -59,6 +59,7 @@ class OnlineStore(ABC):
     @abstractmethod
     def online_read(
         self,
+        api_key: str,
         config: RepoConfig,
         table: FeatureView,
         entity_keys: List[EntityKeyProto],

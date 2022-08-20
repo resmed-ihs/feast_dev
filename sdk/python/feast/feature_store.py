@@ -40,7 +40,7 @@ from colorama import Fore, Style
 from google.protobuf.timestamp_pb2 import Timestamp
 from tqdm import tqdm
 
-from feast import feature_server, flags_helper, ui_server, utils
+from feast import coaxium_server, feature_server, flags_helper, ui_server, utils
 from feast.base_feature_view import BaseFeatureView
 from feast.batch_feature_view import BatchFeatureView
 from feast.data_source import (
@@ -1019,6 +1019,7 @@ class FeatureStore:
     @log_exceptions_and_usage
     def get_historical_features(
         self,
+        api_key: str,
         entity_df: Union[pd.DataFrame, str],
         features: Union[List[str], FeatureService],
         full_feature_names: bool = False,
@@ -1134,6 +1135,7 @@ class FeatureStore:
         provider = self._get_provider()
 
         job = provider.get_historical_features(
+            api_key,
             self.config,
             feature_views,
             _feature_refs,
@@ -1527,6 +1529,7 @@ class FeatureStore:
     @log_exceptions_and_usage
     def get_online_features(
         self,
+        api_key: str,
         features: Union[List[str], FeatureService],
         entity_rows: List[Dict[str, Any]],
         full_feature_names: bool = False,
@@ -1581,6 +1584,7 @@ class FeatureStore:
                     raise ValueError("All entity_rows must have the same keys.") from e
 
         return self._get_online_features(
+            api_key=api_key,
             features=features,
             entity_values=columnar,
             full_feature_names=full_feature_names,
@@ -1601,6 +1605,7 @@ class FeatureStore:
 
     def _get_online_features(
         self,
+        api_key: str,
         features: Union[List[str], FeatureService],
         entity_values: Mapping[
             str, Union[Sequence[Any], Sequence[Value], RepeatedValue]
@@ -1775,6 +1780,7 @@ class FeatureStore:
 
             # Fetch feature data for the minimum set of Entities.
             feature_data = self._read_from_online_store(
+                api_key,
                 table_entity_values,
                 provider,
                 requested_features,
@@ -1976,6 +1982,7 @@ class FeatureStore:
 
     def _read_from_online_store(
         self,
+        api_key: str,
         entity_rows: Iterable[Mapping[str, Value]],
         provider: Provider,
         requested_features: List[str],
@@ -1998,6 +2005,7 @@ class FeatureStore:
 
         # Fetch data for Entities.
         read_rows = provider.online_read(
+            api_key=api_key,
             config=self.config,
             table=table,
             entity_keys=entity_key_protos,
@@ -2306,6 +2314,11 @@ class FeatureStore:
                 )
             # Start the python server if go server isn't enabled
             feature_server.start_server(self, host, port, no_access_log)
+
+    @log_exceptions_and_usage
+    def serve_coaxium(self) -> None:
+        """Start the coaxium server locally."""
+        coaxium_server.start_server(self)
 
     @log_exceptions_and_usage
     def get_feature_server_endpoint(self) -> Optional[str]:

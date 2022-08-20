@@ -260,6 +260,7 @@ class OfflineStore(ABC):
     @staticmethod
     @abstractmethod
     def get_historical_features(
+        api_key: str,
         config: RepoConfig,
         feature_views: List[FeatureView],
         feature_refs: List[str],

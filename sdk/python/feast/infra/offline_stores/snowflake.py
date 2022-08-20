@@ -219,6 +219,7 @@ class SnowflakeOfflineStore(OfflineStore):
     @staticmethod
     @log_exceptions_and_usage(offline_store="snowflake")
     def get_historical_features(
+        api_key: str,
         config: RepoConfig,
         feature_views: List[FeatureView],
         feature_refs: List[str],
@@ -231,7 +232,7 @@ class SnowflakeOfflineStore(OfflineStore):
         for fv in feature_views:
             assert isinstance(fv.batch_source, SnowflakeSource)
 
-        snowflake_conn = get_snowflake_conn(config.offline_store)
+        snowflake_conn = get_snowflake_conn(config.offline_store, api_key)
 
         entity_schema = _get_entity_schema(entity_df, snowflake_conn, config)
 

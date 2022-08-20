@@ -635,6 +635,19 @@ def init_command(project_directory, minimal: bool, template: str):
     init_repo(project_directory, template)
 
 
+@cli.command("serve-coaxium")
+@click.pass_context
+def serve_coaxium_command(ctx: click.Context):
+    """Start a feature server locally on a given port."""
+    repo = ctx.obj["CHDIR"]
+    fs_yaml_file = ctx.obj["FS_YAML_FILE"]
+    print(fs_yaml_file)
+    cli_check_repo(repo, fs_yaml_file)
+    store = FeatureStore(repo_path=str(repo), fs_yaml_file=fs_yaml_file)
+
+    store.serve_coaxium()
+
+
 @cli.command("serve")
 @click.option(
     "--host",

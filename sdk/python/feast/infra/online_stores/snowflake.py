@@ -151,6 +151,7 @@ class SnowflakeOnlineStore(OnlineStore):
     @log_exceptions_and_usage(online_store="snowflake")
     def online_read(
         self,
+        api_key: str,
         config: RepoConfig,
         table: FeatureView,
         entity_keys: List[EntityKeyProto],
@@ -175,7 +176,7 @@ class SnowflakeOnlineStore(OnlineStore):
         )
 
         table_path = f'"{config.online_store.database}"."{config.online_store.schema_}"'
-        with get_snowflake_conn(config.online_store) as conn:
+        with get_snowflake_conn(config.online_store, api_key) as conn:
             query = f"""
                 SELECT
                     "entity_key", "feature_name", "value", "event_ts"

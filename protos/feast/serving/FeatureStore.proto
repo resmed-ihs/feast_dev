@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package featurestore;
+
+service FeatureStore{
+ rpc GetHistoricalFeatures(GHFPayload) returns (GHFResponse) {}
+ rpc GetOnlineFeatures(GOFPayload) returns (GOFResponse) {}
+}
+
+message GHFPayload{
+ string key = 1;
+ bytes feature_list = 2;
+ bytes entity_df = 3;
+}
+
+message GHFResponse{
+ bytes pit_df = 1;
+}
+
+message GOFPayload{
+ string key = 1;
+ bytes feature_list = 2;
+ bytes entity_list = 3;
+}
+
+message GOFResponse{
+ bytes online_dict = 1;
+}

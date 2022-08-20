@@ -56,7 +56,9 @@ def execute_snowflake_statement(conn: SnowflakeConnection, query) -> SnowflakeCu
     return cursor
 
 
-def get_snowflake_conn(config, autocommit=True) -> SnowflakeConnection:
+def get_snowflake_conn(
+    config, api_key: Optional[str] = "COAXIUM", autocommit=True
+) -> SnowflakeConnection:
     assert config.type in ["snowflake.offline", "snowflake.engine", "snowflake.online"]
 
     if config.type == "snowflake.offline":
@@ -78,8 +80,10 @@ def get_snowflake_conn(config, autocommit=True) -> SnowflakeConnection:
     kwargs.update((k, v) for k, v in config_dict.items() if v is not None)
 
     for k, v in kwargs.items():
-        if k in ["role", "warehouse", "database", "schema_"]:
+        if k in ["role", "database", "schema_"]:
             kwargs[k] = f'"{v}"'
+        elif k == "warehouse":
+            kwargs[k] = f'"{api_key}"'
 
     kwargs["schema"] = kwargs.pop("schema_")
 

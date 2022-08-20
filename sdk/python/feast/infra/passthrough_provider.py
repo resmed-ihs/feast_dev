@@ -177,6 +177,7 @@ class PassthroughProvider(Provider):
     @log_exceptions_and_usage(sampler=RatioSampler(ratio=0.001))
     def online_read(
         self,
+        api_key: str,
         config: RepoConfig,
         table: FeatureView,
         entity_keys: List[EntityKeyProto],
@@ -186,7 +187,7 @@ class PassthroughProvider(Provider):
         result = []
         if self.online_store:
             result = self.online_store.online_read(
-                config, table, entity_keys, requested_features
+                api_key, config, table, entity_keys, requested_features
             )
         return result
 
@@ -255,6 +256,7 @@ class PassthroughProvider(Provider):
 
     def get_historical_features(
         self,
+        api_key: str,
         config: RepoConfig,
         feature_views: List[FeatureView],
         feature_refs: List[str],
@@ -266,6 +268,7 @@ class PassthroughProvider(Provider):
         set_usage_attribute("provider", self.__class__.__name__)
 
         job = self.offline_store.get_historical_features(
+            api_key=api_key,
             config=config,
             feature_views=feature_views,
             feature_refs=feature_refs,
