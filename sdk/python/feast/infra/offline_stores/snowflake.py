@@ -426,6 +426,75 @@ class SnowflakeRetrievalJob(RetrievalJob):
                     pd.DataFrame(columns=[md.name for md in empty_result.description])
                 )
 
+    def to_df(
+        self, validation_reference: Optional["ValidationReference"] = None
+    ) -> pd.DataFrame:
+
+        with self._query_generator() as query:
+            if self.on_demand_feature_views:
+                query = self.get_transformed_features_query(
+                    query,
+                    self.on_demand_feature_views,
+                    self.full_feature_names,
+                )
+
+            with self.snowflake_conn as conn:
+                # cursor = execute_snowflake_statement(conn, query)
+                df = execute_snowflake_statement(conn, query).fetch_pandas_all()
+
+        return df
+
+    def get_transformed_features_query(
+        self,
+        pit_query: str,
+        odfvs,
+        full_feature_names: bool = False,
+    ) -> str:
+        for odfv in odfvs:
+            print(odfv)
+        query = pit_query
+        return query
+
+    def get_transformed_features_query2(
+        self,
+        df_with_features: pd.DataFrame,
+        full_feature_names: bool = False,
+    ) -> pd.DataFrame:
+        # Apply on demand transformations
+        columns_to_cleanup = []
+        for source_fv_projection in self.source_feature_view_projections.values():
+            for feature in source_fv_projection.features:
+                full_feature_ref = f"{source_fv_projection.name}__{feature.name}"
+                if full_feature_ref in df_with_features.keys():
+                    # Make sure the partial feature name is always present
+                    df_with_features[feature.name] = df_with_features[full_feature_ref]
+                    columns_to_cleanup.append(feature.name)
+                elif feature.name in df_with_features.keys():
+                    # Make sure the full feature name is always present
+                    df_with_features[full_feature_ref] = df_with_features[feature.name]
+                    columns_to_cleanup.append(full_feature_ref)
+
+        # Compute transformed values and apply to each result row
+        df_with_transformed_features = self.udf.__call__(df_with_features)
+
+        # Work out whether the correct columns names are used.
+        rename_columns: Dict[str, str] = {}
+        for feature in self.features:
+            short_name = feature.name
+            long_name = f"{self.projection.name_to_use()}__{feature.name}"
+            if (
+                short_name in df_with_transformed_features.columns
+                and full_feature_names
+            ):
+                rename_columns[short_name] = long_name
+            elif not full_feature_names:
+                # Long name must be in dataframe.
+                rename_columns[long_name] = short_name
+
+        # Cleanup extra columns used for transformation
+        df_with_features.drop(columns=columns_to_cleanup, inplace=True)
+        return df_with_transformed_features.rename(columns=rename_columns)
+
     def to_snowflake(self, table_name: str, temporary=False) -> None:
         """Save dataset as a new Snowflake table"""
         if self.on_demand_feature_views:

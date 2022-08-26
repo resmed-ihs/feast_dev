@@ -4,9 +4,9 @@ import pandas as pd
 import yaml
 
 from feast import (
+    BatchFeatureView,
     Entity,
     FeatureService,
-    FeatureView,
     Field,
     PushSource,
     RequestSource,
@@ -37,7 +37,7 @@ driver_stats_source = SnowflakeSource(
 
 # Feature views are a grouping based on how features are stored in either the
 # online or offline store.
-driver_stats_fv = FeatureView(
+driver_stats_fv = BatchFeatureView(
     # The unique name of this feature view. Two feature views in a single
     # project cannot have the same name
     name="driver_hourly_stats",
