@@ -394,24 +394,29 @@ class SnowflakeMaterializationEngine(BatchMaterializationEngine):
             fv_created_str = None
 
         online_path = get_snowflake_online_store_path(repo_config, feature_view)
-        online_table = (
-            f'{online_path}."[online-transient] {project}_{feature_view.name}"'
-        )
+        online_table = f'{online_path}."[online-hybrid] {project}_{feature_view.name}"'
+
+        query = f"""
+            SELECT
+              "entity_key" || TO_BINARY("feature_name", 'UTF-8') AS "entity_feature_key",
+              "entity_key",
+              "feature_name",
+              "feature_value" AS "value",
+              "{feature_view.batch_source.timestamp_field}" AS "event_ts"
+              {fv_created_str + ' AS "created_ts"' if fv_created_str else ''}
+            FROM (
+              {materialization_sql}
+            )
+            UNPIVOT("feature_value" FOR "feature_name" IN ("{feature_names_str}"))
+        """
+
+        with get_snowflake_conn(repo_config.batch_engine) as conn:
+            query_id = execute_snowflake_statement(conn, query).sfqid
 
         query = f"""
             MERGE INTO {online_table} online_table
               USING (
-                SELECT
-                  "entity_key" || TO_BINARY("feature_name", 'UTF-8') AS "entity_feature_key",
-                  "entity_key",
-                  "feature_name",
-                  "feature_value" AS "value",
-                  "{feature_view.batch_source.timestamp_field}" AS "event_ts"
-                  {fv_created_str + ' AS "created_ts"' if fv_created_str else ''}
-                FROM (
-                  {materialization_sql}
-                )
-                UNPIVOT("feature_value" FOR "feature_name" IN ("{feature_names_str}"))
+                TABLE(RESULT_SCAN('{query_id}'))
               ) AS latest_values ON online_table."entity_feature_key" = latest_values."entity_feature_key"
               WHEN MATCHED THEN
                 UPDATE SET
