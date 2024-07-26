@@ -53,7 +53,7 @@ REQUIRED = [
     "Jinja2>=2,<4",
     "jsonschema",
     "mmh3",
-    "numpy>=1.22,<1.25",
+    "numpy>=1.26",
     "pandas>=2",
     # For some reason pandavro higher than 1.5.* only support pandas less than 1.3.
     "pandavro~=1.5.0",
@@ -74,7 +74,7 @@ REQUIRED = [
     "fastapi>=0.68.0,<0.100",
     "uvicorn[standard]>=0.14.0,<1",
     "gunicorn",
-    "dask>=2021.1.0",
+    "dask>=2024.6.2",
     "bowler",  # Needed for automatic repo upgrades
     # FastAPI does not correctly pull starlette dependency on httpx see thread(https://github.com/tiangolo/fastapi/issues/5656).
     "httpx>=0.23.3",
