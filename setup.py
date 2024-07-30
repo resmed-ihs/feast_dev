@@ -53,7 +53,7 @@ REQUIRED = [
     "Jinja2>=2,<4",
     "jsonschema",
     "mmh3",
-    "numpy>=1.22,<1.25",
+    "numpy>=1.22,<3"
     "pandas>=2,<2.2.1",
     # For some reason pandavro higher than 1.5.* only support pandas less than 1.3.
     "pandavro~=1.5.0",
