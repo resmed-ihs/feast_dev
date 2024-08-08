@@ -53,14 +53,14 @@ REQUIRED = [
     "Jinja2>=2,<4",
     "jsonschema",
     "mmh3",
-    "numpy>=1.22,<1.25",
-    "pandas>=1.4.3,<2",
+    "numpy>=1.22,<3",
+    "pandas>=2,<2.2.1",
     # For some reason pandavro higher than 1.5.* only support pandas less than 1.3.
     "pandavro~=1.5.0",
     # Higher than 4.23.4 seems to cause a seg fault
     "protobuf<4.23.4,>3.20",
     "proto-plus>=1.20.0,<2",
-    "pyarrow>=4",
+    "pyarrow==15",
     "pydantic>=1,<2",
     "pygments>=2.12.0,<3",
     "PyYAML>=5.4.0,<7",
