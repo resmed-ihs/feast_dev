@@ -58,7 +58,7 @@ REQUIRED = [
     # For some reason pandavro higher than 1.5.* only support pandas less than 1.3.
     "pandavro~=1.5.0",
     # Higher than 4.23.4 seems to cause a seg fault
-    "protobuf<4.23.4,>3.20",
+    "protobuf==5.27.3",
     "proto-plus>=1.20.0,<2",
     "pyarrow==15",
     "pydantic>=1,<2",
@@ -75,7 +75,7 @@ REQUIRED = [
     "uvicorn[standard]>=0.14.0,<1",
     "gunicorn",
     "dask>=2021.1.0",
-    "bowler",  # Needed for automatic repo upgrades
+    "bowler",  # Needed for automatic repor upgrades
     # FastAPI does not correctly pull starlette dependency on httpx see thread(https://github.com/tiangolo/fastapi/issues/5656).
     "httpx>=0.23.3",
     "importlib-resources>=6.0.0,<7",
